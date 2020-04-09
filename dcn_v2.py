@@ -9,19 +9,47 @@ from torch import nn
 from torch.autograd import Function
 from torch.nn.modules.utils import _pair
 from torch.autograd.function import once_differentiable
+import json
 
 import _ext as _backend
 
 
 class _DCNv2(Function):
+
     @staticmethod
-    def forward(ctx, input, offset, mask, weight, bias,
+    def symbolic(g, input, offset_mask, weight, bias, stride, padding, dilation, deformable_groups):
+        return g.op("Plugin", input, offset_mask, weight, bias, name_s="DCNv2", info_s=json.dumps({
+            "dilation": dilation,
+            "padding": padding,
+            "stride": stride,
+            "deformable_groups": deformable_groups
+        }))
+
+    ###############################################  修改的部分 ############################################################
+    # 这里以下的修改，并不是必须的，仅仅是复现DCN的时候，输入改成是input和offset_mask，原始的做法是chunk分割为x, y, mask，
+    # 然后再cat，再对mask做sigmoid后输入到dcn。这么做效率比较底下。实现DCN的时候输入input和offset_mask，内部做了分割和sigmomid
+    # 减少数据流转，提高效率，也因此在这里对操作做了修改
+    @staticmethod
+    def forward(ctx, input, offset_mask, weight, bias,
                 stride, padding, dilation, deformable_groups):
         ctx.stride = _pair(stride)
         ctx.padding = _pair(padding)
         ctx.dilation = _pair(dilation)
         ctx.kernel_size = _pair(weight.shape[2:4])
         ctx.deformable_groups = deformable_groups
+
+        o1, o2, mask = torch.chunk(offset_mask, 3, dim=1)
+        offset = torch.cat((o1, o2), dim=1)
+        mask = torch.sigmoid(mask)
+
+    # @staticmethod
+    # def forward(ctx, input, offset, mask, weight, bias,
+    #             stride, padding, dilation, deformable_groups):
+    #     ctx.stride = _pair(stride)
+    #     ctx.padding = _pair(padding)
+    #     ctx.dilation = _pair(dilation)
+    #     ctx.kernel_size = _pair(weight.shape[2:4])
+    #     ctx.deformable_groups = deformable_groups
         output = _backend.dcn_v2_forward(input, weight, bias,
                                          offset, mask,
                                          ctx.kernel_size[0], ctx.kernel_size[1],
