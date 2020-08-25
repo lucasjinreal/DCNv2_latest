@@ -17,11 +17,6 @@ def get_extensions():
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
     source_cuda = glob.glob(os.path.join(extensions_dir, "cuda", "*.cu"))
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> 977dfd39b3536ba20baee06d1055d2bd5a5e9593
     os.environ["CC"] = "g++"
     sources = main_file + source_cpu
     extension = CppExtension
@@ -40,14 +35,8 @@ def get_extensions():
             "-D__CUDA_NO_HALF2_OPERATORS__",
         ]
     else:
-<<<<<<< HEAD
-        #raise NotImplementedError('Cuda is not available')
-        pass
-    
-=======
         # raise NotImplementedError('Cuda is not available')
         pass
->>>>>>> 977dfd39b3536ba20baee06d1055d2bd5a5e9593
 
     sources = [os.path.join(extensions_dir, s) for s in sources]
     include_dirs = [extensions_dir]
