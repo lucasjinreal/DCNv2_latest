@@ -1,28 +1,17 @@
-## Deformable Convolutional Networks V2 with Pytorch 1.X
+# DCNv2 latest
 
-### Build
-```bash
-    ./make.sh         # build
-    python testcpu.py    # run examples and gradient check on cpu
-    python testcuda.py   # run examples and gradient check on gpu 
-```
-### Note
-Now the master branch is for pytorch 1.x, you can switch back to pytorch 0.4 with,
-```bash
-git checkout pytorch_0.4
-```
 
-### Known Issues:
 
-- [x] Gradient check w.r.t offset (solved)
-- [ ] Backward is not reentrant (minor)
+Since DCN is used in many models and performance well but in industry this op support is not very well. Including pytorch, onnx, tensorrt etc. This repo is make DCNv2 available at all versions in pytorch.
 
-This is an adaption of the official [Deformable-ConvNets](https://github.com/msracver/Deformable-ConvNets/tree/master/DCNv2_op).
 
-Update: all gradient check passes with **double** precision. 
 
-Another issue is that it raises `RuntimeError: Backward is not reentrant`. However, the error is very small (`<1e-7` for 
-float `<1e-15` for double), 
-so it may not be a serious problem (?)
+## Updates
 
-Please post an issue or PR if you have any comments.
+- **2020.08.25**: Check out pytorch1.6 branch for pytorch 1.6 support, you will meet an error like `THCudaBlas_Sgemv undefined` if you using pytorch 1.6 build master branch. master branch now work for pytorch 1.5;
+
+
+
+## Contact
+
+If you have any question, welcome add my wechat: `jintianiloveu` for communication.
