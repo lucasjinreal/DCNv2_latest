@@ -221,10 +221,10 @@ std::vector<at::Tensor> dcn_v2_cpu_backward(const at::Tensor &input,
         // gradient w.r.t. bias
         // long m_ = channels_out;
         // long k__ = height_out * width_out;
-        THFloatBlas_gemv('t', k_, m_, 1.0f,
-                         grad_output_n.data<scalar_t>(), k_,
-                         ones.data<scalar_t>(), 1, 1.0f,
-                         grad_bias.data<scalar_t>(), 1);
+        // THFloatBlas_gemv('t', k_, m_, 1.0f,
+        //                  grad_output_n.data<scalar_t>(), k_,
+        //                  ones.data<scalar_t>(), 1, 1.0f,
+        //                  grad_bias.data<scalar_t>(), 1);
     }
 
     return {
