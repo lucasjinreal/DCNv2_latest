@@ -8,6 +8,8 @@ Since DCN is used in many models and performance well but in industry this op su
 
 ## Updates
 
+- **2020.09.23**: Now master branch works for pytorch 1.6 by default, for older version you gonna need seperated one.
+
 - **2020.08.25**: Check out pytorch1.6 branch for pytorch 1.6 support, you will meet an error like `THCudaBlas_Sgemv undefined` if you using pytorch 1.6 build master branch. master branch now work for pytorch 1.5;
 
 
