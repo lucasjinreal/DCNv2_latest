@@ -76,32 +76,55 @@ dcn_v2_cpu_forward(const at::Tensor &input,
         // M,N,K are dims of matrix A and B
         // (see http://docs.nvidia.com/cuda/cublas/#cublas-lt-t-gt-gemm)
         // (N x 1) (1 x M)
-        long m_ = channels_out;
-        long n_ = height_out * width_out;
-        long k_ = 1;
-        THFloatBlas_gemm('t', 'n', n_, m_, k_, 1.0f,
-                         ones.contiguous().data<scalar_t>(), k_,
-                         bias.contiguous().data<scalar_t>(), k_, 0.0f,
-                         output_n.data<scalar_t>(), n_);
+        // long m_ = channels_out;
+        // long n_ = height_out * width_out;
+        // long k_ = 1;
+        // THFloatBlas_gemm('t', 'n', n_, m_, k_, 1.0f,
+        //                  ones.contiguous().data<scalar_t>(), k_,
+        //                  bias.contiguous().data<scalar_t>(), k_, 0.0f,
+        //                  output_n.data<scalar_t>(), n_);
 
-        modulated_deformable_im2col_cpu(input_n.data<scalar_t>(),
-                                         offset_n.data<scalar_t>(),
-                                         mask_n.data<scalar_t>(),
+        // modulated_deformable_im2col_cpu(input_n.data<scalar_t>(),
+        //                                  offset_n.data<scalar_t>(),
+        //                                  mask_n.data<scalar_t>(),
+        //                                  1, channels, height, width,
+        //                                  height_out, width_out, kernel_h, kernel_w,
+        //                                  pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
+        //                                  deformable_group,
+        //                                  columns.data<scalar_t>());
+
+        // //(k * m)  x  (m * n)
+        // // Y = WC
+        // long m = channels_out;
+        // long n = height_out * width_out;
+        // long k = channels * kernel_h * kernel_w;
+        // THFloatBlas_gemm('n', 'n', n, m, k, 1.0f,
+        //                  columns.data<scalar_t>(), n,
+        //                  weight.data<scalar_t>(), k, 1.0f,
+        //                  output_n.data<scalar_t>(), n);
+
+        // torch implementation
+        auto ones_T = at::transpose(ones.contiguous(), 2, 0);
+        ones_T = at::mul(ones_T, bias.contiguous());
+        ones_T = at::transpose(ones_T, 2, 0);
+        output_n = at::add(output_n, ones_T);
+
+        modulated_deformable_im2col_cpu(input_n.data_ptr<scalar_t>(),
+                                         offset_n.data_ptr<scalar_t>(),
+                                         mask_n.data_ptr<scalar_t>(),
                                          1, channels, height, width,
                                          height_out, width_out, kernel_h, kernel_w,
                                          pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
                                          deformable_group,
-                                         columns.data<scalar_t>());
+                                         columns.data_ptr<scalar_t>());
 
         //(k * m)  x  (m * n)
         // Y = WC
-        long m = channels_out;
-        long n = height_out * width_out;
-        long k = channels * kernel_h * kernel_w;
-        THFloatBlas_gemm('n', 'n', n, m, k, 1.0f,
-                         columns.data<scalar_t>(), n,
-                         weight.data<scalar_t>(), k, 1.0f,
-                         output_n.data<scalar_t>(), n);
+
+        // torch implementation
+        auto weight_flat = weight.view({channels_out, channels * kernel_h * kernel_w});
+        auto product = at::matmul(weight_flat, columns);
+        output.select(0, b) = at::add(output_n, product.view({channels_out, height_out, width_out}));
     }
     return output;
 }
@@ -169,14 +192,20 @@ std::vector<at::Tensor> dcn_v2_cpu_backward(const at::Tensor &input,
         auto grad_offset_n = grad_offset.select(0, b);
         auto grad_mask_n = grad_mask.select(0, b);
 
-        long m = channels * kernel_h * kernel_w;
-        long n = height_out * width_out;
-        long k = channels_out;
+        // long m = channels * kernel_h * kernel_w;
+        // long n = height_out * width_out;
+        // long k = channels_out;
 
-        THFloatBlas_gemm('n', 't', n, m, k, 1.0f,
-                         grad_output_n.data<scalar_t>(), n,
-                         weight.data<scalar_t>(), m, 0.0f,
-                         columns.data<scalar_t>(), n);
+        // THFloatBlas_gemm('n', 't', n, m, k, 1.0f,
+        //                  grad_output_n.data<scalar_t>(), n,
+        //                  weight.data<scalar_t>(), m, 0.0f,
+        //                  columns.data<scalar_t>(), n);
+
+         // Torch implementation
+        auto weight_flat = weight.view({channels_out, channels*kernel_h*kernel_w});
+        weight_flat = at::transpose(weight_flat, 1, 0);
+        auto grad_output_n_flat = grad_output_n.view({channels_out, height_out*width_out});
+        columns = at::matmul(weight_flat, grad_output_n_flat);
 
         // gradient w.r.t. input coordinate data
         modulated_deformable_col2im_coord_cpu(columns.data<scalar_t>(),
@@ -209,14 +238,14 @@ std::vector<at::Tensor> dcn_v2_cpu_backward(const at::Tensor &input,
                                          dilation_h, dilation_w, deformable_group,
                                          columns.data<scalar_t>());
 
-        long m_ = channels_out;
-        long n_ = channels * kernel_h * kernel_w;
-        long k_ = height_out * width_out;
+        // long m_ = channels_out;
+        // long n_ = channels * kernel_h * kernel_w;
+        // long k_ = height_out * width_out;
 
-        THFloatBlas_gemm('t', 'n', n_, m_, k_, 1.0f,
-                         columns.data<scalar_t>(), k_,
-                         grad_output_n.data<scalar_t>(), k_, 1.0f,
-                         grad_weight.data<scalar_t>(), n_);
+        // THFloatBlas_gemm('t', 'n', n_, m_, k_, 1.0f,
+        //                  columns.data<scalar_t>(), k_,
+        //                  grad_output_n.data<scalar_t>(), k_, 1.0f,
+        //                  grad_weight.data<scalar_t>(), n_);
 
         // gradient w.r.t. bias
         // long m_ = channels_out;
@@ -225,6 +254,16 @@ std::vector<at::Tensor> dcn_v2_cpu_backward(const at::Tensor &input,
         //                  grad_output_n.data<scalar_t>(), k_,
         //                  ones.data<scalar_t>(), 1, 1.0f,
         //                  grad_bias.data<scalar_t>(), 1);
+
+        // Torch implementation
+        auto product = at::matmul(grad_output_n_flat, at::transpose(columns, 1, 0));
+        grad_weight = at::add(grad_weight, product.view({channels_out, channels, kernel_h, kernel_w}));
+
+
+        // Torch implementation
+        auto ones_flat = ones.view({height_out*width_out});
+        product = at::matmul(grad_output_n_flat, ones_flat);
+        grad_bias = at::add(grad_bias, product);
     }
 
     return {
