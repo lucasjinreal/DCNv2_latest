@@ -10,6 +10,7 @@ from torch.autograd import gradcheck
 
 from dcn_v2 import dcn_v2_conv, DCNv2, DCN
 from dcn_v2 import dcn_v2_pooling, DCNv2Pooling, DCNPooling
+import ipdb
 
 deformable_groups = 1
 N, inC, inH, inW = 2, 2, 4, 4
@@ -52,7 +53,8 @@ def check_zero_offset():
     conv_mask.bias.data.zero_()
     conv_identify(dcn_v2.weight, dcn_v2.bias)
 
-    input = torch.randn(N, inC, inH, inW).cuda()
+    # input = torch.randn(N, inC, inH, inW).cuda()
+    input = torch.ones(N, inC, inH, inW).cuda()
     offset = conv_offset(input)
     mask = conv_mask(input)
     mask = torch.sigmoid(mask)
@@ -252,6 +254,7 @@ def example_mdpooling():
 
 if __name__ == '__main__':
 
+    check_zero_offset()
     example_dconv()
     example_dpooling()
     example_mdpooling()

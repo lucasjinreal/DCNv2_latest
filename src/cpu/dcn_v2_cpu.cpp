@@ -5,6 +5,7 @@
 //#include <ATen/cuda/CUDAContext.h>
 
 #include <TH/TH.h>
+#include <iostream>
 //#include <THC/THCAtomics.cuh>
 //#include <THC/THCDeviceUtils.cuh>
 
@@ -61,8 +62,8 @@ dcn_v2_cpu_forward(const at::Tensor &input,
     const int width_out = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
 
     auto ones = at::ones({height_out, width_out}, input.options());
-    auto columns = at::empty({channels * kernel_h * kernel_w, 1 * height_out * width_out}, input.options());
-    auto output = at::empty({batch, channels_out, height_out, width_out}, input.options());
+    auto columns = at::zeros({channels * kernel_h * kernel_w, 1 * height_out * width_out}, input.options());
+    auto output = at::zeros({batch, channels_out, height_out, width_out}, input.options());
 
     using scalar_t = float;
     for (int b = 0; b < batch; b++)
@@ -104,10 +105,13 @@ dcn_v2_cpu_forward(const at::Tensor &input,
         //                  output_n.data<scalar_t>(), n);
 
         // torch implementation
-        auto ones_T = at::transpose(ones.contiguous(), 2, 0);
-        ones_T = at::mul(ones_T, bias.contiguous());
-        ones_T = at::transpose(ones_T, 2, 0);
-        output_n = at::add(output_n, ones_T);
+        long n_ = height_out * width_out;
+        long m_ = channels_out;
+        long k_ = 1;
+        auto ones_T = ones.view({k_, n_});
+        auto bias_T = bias.view({m_, k_});
+        ones_T = at::matmul(bias_T.contiguous(), ones_T.contiguous());
+        output_n = at::add(output_n, ones_T.view({channels_out, height_out, width_out}));
 
         modulated_deformable_im2col_cpu(input_n.data_ptr<scalar_t>(),
                                          offset_n.data_ptr<scalar_t>(),

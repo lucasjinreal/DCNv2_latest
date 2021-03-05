@@ -10,6 +10,7 @@ from torch.autograd import gradcheck
 
 from dcn_v2 import dcn_v2_conv, DCNv2, DCN
 from dcn_v2 import dcn_v2_pooling, DCNv2Pooling, DCNPooling
+import ipdb
 
 deformable_groups = 1
 N, inC, inH, inW = 2, 2, 4, 4
@@ -53,6 +54,7 @@ def check_zero_offset():
     conv_identify(dcn_v2.weight, dcn_v2.bias)
 
     input = torch.randn(N, inC, inH, inW)
+    # input = torch.ones(N, inC, inH, inW)
     offset = conv_offset(input)
     mask = conv_mask(input)
     mask = torch.sigmoid(mask)
@@ -62,7 +64,7 @@ def check_zero_offset():
     if d < 1e-10:
         print('Zero offset passed')
     else:
-        print('Zero offset failed')
+        print('Zero offset failed, {}'.format(d))
         print(input)
         print(output)
 
