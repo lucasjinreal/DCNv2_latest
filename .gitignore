@@ -7,3 +7,4 @@ _ext
 build
 DCNv2.egg-info
 dist
+*.swp

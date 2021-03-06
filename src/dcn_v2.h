@@ -12,36 +12,46 @@ dcn_v2_forward(const at::Tensor &input,
                const at::Tensor &bias,
                const at::Tensor &offset,
                const at::Tensor &mask,
-               const int kernel_h,
-               const int kernel_w,
-               const int stride_h,
-               const int stride_w,
-               const int pad_h,
-               const int pad_w,
-               const int dilation_h,
-               const int dilation_w,
-               const int deformable_group)
+               at::Tensor kernel_h,
+               at::Tensor kernel_w,
+               at::Tensor stride_h,
+               at::Tensor stride_w,
+               at::Tensor pad_h,
+               at::Tensor pad_w,
+               at::Tensor dilation_h,
+               at::Tensor dilation_w,
+               at::Tensor deformable_group)
 {
+    int _kernel_h = int(kernel_h.data<float>()[0]);
+    int _kernel_w = int(kernel_w.data<float>()[0]);
+    int _stride_h = int(stride_h.data<float>()[0]);
+    int _stride_w = int(stride_w.data<float>()[0]);
+    int _pad_h = int(pad_h.data<float>()[0]);
+    int _pad_w = int(pad_w.data<float>()[0]);
+    int _dilation_h = int(dilation_h.data<float>()[0]);
+    int _dilation_w = int(dilation_w.data<float>()[0]);
+    int _deformable_group = int(deformable_group.data<float>()[0]);
+
     if (input.type().is_cuda())
     {
 #ifdef WITH_CUDA
         return dcn_v2_cuda_forward(input, weight, bias, offset, mask,
-                                   kernel_h, kernel_w,
-                                   stride_h, stride_w,
-                                   pad_h, pad_w,
-                                   dilation_h, dilation_w,
-                                   deformable_group);
+                                   _kernel_h, _kernel_w,
+                                   _stride_h, _stride_w,
+                                   _pad_h, _pad_w,
+                                   _dilation_h, _dilation_w,
+                                   _deformable_group);
 #else
         AT_ERROR("Not compiled with GPU support");
 #endif
     }
     else{
         return dcn_v2_cpu_forward(input, weight, bias, offset, mask,
-                                   kernel_h, kernel_w,
-                                   stride_h, stride_w,
-                                   pad_h, pad_w,
-                                   dilation_h, dilation_w,
-                                   deformable_group);
+                                   _kernel_h, _kernel_w,
+                                   _stride_h, _stride_w,
+                                   _pad_h, _pad_w,
+                                   _dilation_h, _dilation_w,
+                                   _deformable_group);
     }
 }
 
@@ -52,12 +62,22 @@ dcn_v2_backward(const at::Tensor &input,
                 const at::Tensor &offset,
                 const at::Tensor &mask,
                 const at::Tensor &grad_output,
-                int kernel_h, int kernel_w,
-                int stride_h, int stride_w,
-                int pad_h, int pad_w,
-                int dilation_h, int dilation_w,
-                int deformable_group)
+                at::Tensor kernel_h, at::Tensor kernel_w,
+                at::Tensor stride_h, at::Tensor stride_w,
+                at::Tensor pad_h, at::Tensor pad_w,
+                at::Tensor dilation_h, at::Tensor dilation_w,
+                at::Tensor deformable_group)
 {
+    int _kernel_h = int(kernel_h.data<float>()[0]);
+    int _kernel_w = int(kernel_w.data<float>()[0]);
+    int _stride_h = int(stride_h.data<float>()[0]);
+    int _stride_w = int(stride_w.data<float>()[0]);
+    int _pad_h = int(pad_h.data<float>()[0]);
+    int _pad_w = int(pad_w.data<float>()[0]);
+    int _dilation_h = int(dilation_h.data<float>()[0]);
+    int _dilation_w = int(dilation_w.data<float>()[0]);
+    int _deformable_group = int(deformable_group.data<float>()[0]);
+
     if (input.type().is_cuda())
     {
 #ifdef WITH_CUDA
@@ -67,11 +87,11 @@ dcn_v2_backward(const at::Tensor &input,
                                     offset,
                                     mask,
                                     grad_output,
-                                    kernel_h, kernel_w,
-                                    stride_h, stride_w,
-                                    pad_h, pad_w,
-                                    dilation_h, dilation_w,
-                                    deformable_group);
+                                    _kernel_h, _kernel_w,
+                                    _stride_h, _stride_w,
+                                    _pad_h, _pad_w,
+                                    _dilation_h, _dilation_w,
+                                    _deformable_group);
 #else
         AT_ERROR("Not compiled with GPU support");
 #endif
@@ -83,11 +103,11 @@ dcn_v2_backward(const at::Tensor &input,
                                     offset,
                                     mask,
                                     grad_output,
-                                    kernel_h, kernel_w,
-                                    stride_h, stride_w,
-                                    pad_h, pad_w,
-                                    dilation_h, dilation_w,
-                                    deformable_group);
+                                    _kernel_h, _kernel_w,
+                                    _stride_h, _stride_w,
+                                    _pad_h, _pad_w,
+                                    _dilation_h, _dilation_w,
+                                    _deformable_group);
     }
 }
 
@@ -95,29 +115,38 @@ std::tuple<at::Tensor, at::Tensor>
 dcn_v2_psroi_pooling_forward(const at::Tensor &input,
                              const at::Tensor &bbox,
                              const at::Tensor &trans,
-                             const int no_trans,
-                             const float spatial_scale,
-                             const int output_dim,
-                             const int group_size,
-                             const int pooled_size,
-                             const int part_size,
-                             const int sample_per_part,
-                             const float trans_std)
+                             at::Tensor &no_trans,
+                             at::Tensor &spatial_scale,
+                             at::Tensor &output_dim,
+                             at::Tensor &group_size,
+                             at::Tensor &pooled_size,
+                             at::Tensor &part_size,
+                             at::Tensor &sample_per_part,
+                             at::Tensor &trans_std)
 {
+    int _no_trans = int(no_trans.data<float>()[0]);
+    float _spatial_scale = spatial_scale.data<float>()[0];
+    int _output_dim = int(output_dim.data<float>()[0]);
+    int _group_size = int(group_size.data<float>()[0]);
+    int _pooled_size = int(pooled_size.data<float>()[0]);
+    int _part_size = int(part_size.data<float>()[0]);
+    int _sample_per_part = int(sample_per_part.data<float>()[0]);
+    float _trans_std = trans_std.data<float>()[0];
+
     if (input.type().is_cuda())
     {
 #ifdef WITH_CUDA
         return dcn_v2_psroi_pooling_cuda_forward(input,
                                                  bbox,
                                                  trans,
-                                                 no_trans,
-                                                 spatial_scale,
-                                                 output_dim,
-                                                 group_size,
-                                                 pooled_size,
-                                                 part_size,
-                                                 sample_per_part,
-                                                 trans_std);
+                                                 _no_trans,
+                                                 _spatial_scale,
+                                                 _output_dim,
+                                                 _group_size,
+                                                 _pooled_size,
+                                                 _part_size,
+                                                 _sample_per_part,
+                                                 _trans_std);
 #else
         AT_ERROR("Not compiled with GPU support");
 #endif
@@ -126,14 +155,14 @@ dcn_v2_psroi_pooling_forward(const at::Tensor &input,
         return dcn_v2_psroi_pooling_cpu_forward(input,
                                                  bbox,
                                                  trans,
-                                                 no_trans,
-                                                 spatial_scale,
-                                                 output_dim,
-                                                 group_size,
-                                                 pooled_size,
-                                                 part_size,
-                                                 sample_per_part,
-                                                 trans_std);
+                                                 _no_trans,
+                                                 _spatial_scale,
+                                                 _output_dim,
+                                                 _group_size,
+                                                 _pooled_size,
+                                                 _part_size,
+                                                 _sample_per_part,
+                                                 _trans_std);
     }
 }
 
@@ -143,15 +172,24 @@ dcn_v2_psroi_pooling_backward(const at::Tensor &out_grad,
                               const at::Tensor &bbox,
                               const at::Tensor &trans,
                               const at::Tensor &top_count,
-                              const int no_trans,
-                              const float spatial_scale,
-                              const int output_dim,
-                              const int group_size,
-                              const int pooled_size,
-                              const int part_size,
-                              const int sample_per_part,
-                              const float trans_std)
+                              at::Tensor &no_trans,
+                              at::Tensor &spatial_scale,
+                              at::Tensor &output_dim,
+                              at::Tensor &group_size,
+                              at::Tensor &pooled_size,
+                              at::Tensor &part_size,
+                              at::Tensor &sample_per_part,
+                              at::Tensor &trans_std)
 {
+    int _no_trans = int(no_trans.data<float>()[0]);
+    float _spatial_scale = spatial_scale.data<float>()[0];
+    int _output_dim = int(output_dim.data<float>()[0]);
+    int _group_size = int(group_size.data<float>()[0]);
+    int _pooled_size = int(pooled_size.data<float>()[0]);
+    int _part_size = int(part_size.data<float>()[0]);
+    int _sample_per_part = int(sample_per_part.data<float>()[0]);
+    float _trans_std = trans_std.data<float>()[0];
+
     if (input.type().is_cuda())
     {
 #ifdef WITH_CUDA
@@ -160,14 +198,14 @@ dcn_v2_psroi_pooling_backward(const at::Tensor &out_grad,
                                                   bbox,
                                                   trans,
                                                   top_count,
-                                                  no_trans,
-                                                  spatial_scale,
-                                                  output_dim,
-                                                  group_size,
-                                                  pooled_size,
-                                                  part_size,
-                                                  sample_per_part,
-                                                  trans_std);
+                                                  _no_trans,
+                                                  _spatial_scale,
+                                                  _output_dim,
+                                                  _group_size,
+                                                  _pooled_size,
+                                                  _part_size,
+                                                  _sample_per_part,
+                                                  _trans_std);
 #else
         AT_ERROR("Not compiled with GPU support");
 #endif
@@ -178,13 +216,13 @@ dcn_v2_psroi_pooling_backward(const at::Tensor &out_grad,
                                                   bbox,
                                                   trans,
                                                   top_count,
-                                                  no_trans,
-                                                  spatial_scale,
-                                                  output_dim,
-                                                  group_size,
-                                                  pooled_size,
-                                                  part_size,
-                                                  sample_per_part,
-                                                  trans_std);
+                                                  _no_trans,
+                                                  _spatial_scale,
+                                                  _output_dim,
+                                                  _group_size,
+                                                  _pooled_size,
+                                                  _part_size,
+                                                  _sample_per_part,
+                                                  _trans_std);
     }
 }

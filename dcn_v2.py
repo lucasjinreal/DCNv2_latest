@@ -9,8 +9,9 @@ from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 from torch.nn.modules.utils import _pair
 
-import _ext as _backend
-
+# import _ext as _backend
+torch.ops.load_library('_ext.cpython-38-x86_64-linux-gnu.so')
+_backend = torch.ops.mynamespace
 
 class _DCNv2(Function):
     @staticmethod
@@ -28,15 +29,15 @@ class _DCNv2(Function):
             bias,
             offset,
             mask,
-            ctx.kernel_size[0],
-            ctx.kernel_size[1],
-            ctx.stride[0],
-            ctx.stride[1],
-            ctx.padding[0],
-            ctx.padding[1],
-            ctx.dilation[0],
-            ctx.dilation[1],
-            ctx.deformable_groups,
+            torch.Tensor([ctx.kernel_size[0]]),
+            torch.Tensor([ctx.kernel_size[1]]),
+            torch.Tensor([ctx.stride[0]]),
+            torch.Tensor([ctx.stride[1]]),
+            torch.Tensor([ctx.padding[0]]),
+            torch.Tensor([ctx.padding[1]]),
+            torch.Tensor([ctx.dilation[0]]),
+            torch.Tensor([ctx.dilation[1]]),
+            torch.Tensor([ctx.deformable_groups]),
         )
         ctx.save_for_backward(input, offset, mask, weight, bias)
         return output
@@ -52,42 +53,42 @@ class _DCNv2(Function):
             offset,
             mask,
             grad_output,
-            ctx.kernel_size[0],
-            ctx.kernel_size[1],
-            ctx.stride[0],
-            ctx.stride[1],
-            ctx.padding[0],
-            ctx.padding[1],
-            ctx.dilation[0],
-            ctx.dilation[1],
-            ctx.deformable_groups,
+            torch.Tensor([ctx.kernel_size[0]]),
+            torch.Tensor([ctx.kernel_size[1]]),
+            torch.Tensor([ctx.stride[0]]),
+            torch.Tensor([ctx.stride[1]]),
+            torch.Tensor([ctx.padding[0]]),
+            torch.Tensor([ctx.padding[1]]),
+            torch.Tensor([ctx.dilation[0]]),
+            torch.Tensor([ctx.dilation[1]]),
+            torch.Tensor([ctx.deformable_groups]),
         )
 
         return grad_input, grad_offset, grad_mask, grad_weight, grad_bias, None, None, None, None
 
-    @staticmethod
-    def symbolic(
-        g, input, offset, mask, weight, bias, stride, padding, dilation, deformable_groups
-    ):
-        from torch.nn.modules.utils import _pair
+    # @staticmethod
+    # def symbolic(
+        # g, input, offset, mask, weight, bias, stride, padding, dilation, deformable_groups
+    # ):
+        # from torch.nn.modules.utils import _pair
 
-        stride = _pair(stride)
-        padding = _pair(padding)
-        dilation = _pair(dilation)
-        # as of trt 7, the dcn operation will be translated again by modifying the onnx file
-        # so the exporting code is kept to resemble the forward()
-        return g.op(
-            "DCNv2_2",
-            input,
-            offset,
-            mask,
-            weight,
-            bias,
-            stride_i=stride,
-            padding_i=padding,
-            dilation_i=dilation,
-            deformable_groups_i=deformable_groups,
-        )
+        # stride = _pair(stride)
+        # padding = _pair(padding)
+        # dilation = _pair(dilation)
+        # # as of trt 7, the dcn operation will be translated again by modifying the onnx file
+        # # so the exporting code is kept to resemble the forward()
+        # return g.op(
+            # "DCNv2_2",
+            # input,
+            # offset,
+            # mask,
+            # weight,
+            # bias,
+            # stride_i=stride,
+            # padding_i=padding,
+            # dilation_i=dilation,
+            # deformable_groups_i=deformable_groups,
+        # )
 
 
 dcn_v2_conv = _DCNv2.apply
@@ -99,8 +100,8 @@ class DCNv2(nn.Module):
         in_channels,
         out_channels,
         kernel_size,
-        stride,
-        padding,
+        stride = 1,
+        padding = 0,
         dilation=1,
         deformable_groups=1,
     ):
@@ -221,14 +222,14 @@ class _DCNv2Pooling(Function):
             input,
             rois,
             offset,
-            ctx.no_trans,
-            ctx.spatial_scale,
-            ctx.output_dim,
-            ctx.group_size,
-            ctx.pooled_size,
-            ctx.part_size,
-            ctx.sample_per_part,
-            ctx.trans_std,
+            torch.Tensor([ctx.no_trans]),
+            torch.Tensor([ctx.spatial_scale]),
+            torch.Tensor([ctx.output_dim]),
+            torch.Tensor([ctx.group_size]),
+            torch.Tensor([ctx.pooled_size]),
+            torch.Tensor([ctx.part_size]),
+            torch.Tensor([ctx.sample_per_part]),
+            torch.Tensor([ctx.trans_std]),
         )
         ctx.save_for_backward(input, rois, offset, output_count)
         return output
@@ -243,14 +244,14 @@ class _DCNv2Pooling(Function):
             rois,
             offset,
             output_count,
-            ctx.no_trans,
-            ctx.spatial_scale,
-            ctx.output_dim,
-            ctx.group_size,
-            ctx.pooled_size,
-            ctx.part_size,
-            ctx.sample_per_part,
-            ctx.trans_std,
+            torch.Tensor([ctx.no_trans]),
+            torch.Tensor([ctx.spatial_scale]),
+            torch.Tensor([ctx.output_dim]),
+            torch.Tensor([ctx.group_size]),
+            torch.Tensor([ctx.pooled_size]),
+            torch.Tensor([ctx.part_size]),
+            torch.Tensor([ctx.sample_per_part]),
+            torch.Tensor([ctx.trans_std]),
         )
 
         return grad_input, None, grad_offset, None, None, None, None, None, None, None, None
