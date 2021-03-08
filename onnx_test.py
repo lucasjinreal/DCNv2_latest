@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _pair
-torch.ops.load_library('_ext.cpython-38-x86_64-linux-gnu.so')
+torch.ops.load_library('_ext.cpython-37m-x86_64-linux-gnu.so')
 
 def register_custom_op():
     def my_dcn_forward(g, input, weight, bias, offset, mask, kernel_h, kernel_w, stride_h, stride_w, padding_h, padding_w, dilation_h, dilation_w, deformable_groups):

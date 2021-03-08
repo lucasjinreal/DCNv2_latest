@@ -10,7 +10,7 @@ from torch.autograd.function import once_differentiable
 from torch.nn.modules.utils import _pair
 
 # import _ext as _backend
-torch.ops.load_library('_ext.cpython-38-x86_64-linux-gnu.so')
+torch.ops.load_library('_ext.cpython-37m-x86_64-linux-gnu.so')
 _backend = torch.ops.mynamespace
 
 class _DCNv2(Function):

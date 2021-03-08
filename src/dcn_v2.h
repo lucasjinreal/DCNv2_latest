@@ -12,15 +12,15 @@ dcn_v2_forward(const at::Tensor &input,
                const at::Tensor &bias,
                const at::Tensor &offset,
                const at::Tensor &mask,
-               at::Tensor kernel_h,
-               at::Tensor kernel_w,
-               at::Tensor stride_h,
-               at::Tensor stride_w,
-               at::Tensor pad_h,
-               at::Tensor pad_w,
-               at::Tensor dilation_h,
-               at::Tensor dilation_w,
-               at::Tensor deformable_group)
+               const at::Tensor kernel_h,
+               const at::Tensor kernel_w,
+               const at::Tensor stride_h,
+               const at::Tensor stride_w,
+               const at::Tensor pad_h,
+               const at::Tensor pad_w,
+               const at::Tensor dilation_h,
+               const at::Tensor dilation_w,
+               const at::Tensor deformable_group)
 {
     int _kernel_h = int(kernel_h.data<float>()[0]);
     int _kernel_w = int(kernel_w.data<float>()[0]);
@@ -62,11 +62,11 @@ dcn_v2_backward(const at::Tensor &input,
                 const at::Tensor &offset,
                 const at::Tensor &mask,
                 const at::Tensor &grad_output,
-                at::Tensor kernel_h, at::Tensor kernel_w,
-                at::Tensor stride_h, at::Tensor stride_w,
-                at::Tensor pad_h, at::Tensor pad_w,
-                at::Tensor dilation_h, at::Tensor dilation_w,
-                at::Tensor deformable_group)
+                const at::Tensor kernel_h, const at::Tensor kernel_w,
+                const at::Tensor stride_h, const at::Tensor stride_w,
+                const at::Tensor pad_h, const at::Tensor pad_w,
+                const at::Tensor dilation_h, const at::Tensor dilation_w,
+                const at::Tensor deformable_group)
 {
     int _kernel_h = int(kernel_h.data<float>()[0]);
     int _kernel_w = int(kernel_w.data<float>()[0]);
@@ -115,14 +115,14 @@ std::tuple<at::Tensor, at::Tensor>
 dcn_v2_psroi_pooling_forward(const at::Tensor &input,
                              const at::Tensor &bbox,
                              const at::Tensor &trans,
-                             at::Tensor &no_trans,
-                             at::Tensor &spatial_scale,
-                             at::Tensor &output_dim,
-                             at::Tensor &group_size,
-                             at::Tensor &pooled_size,
-                             at::Tensor &part_size,
-                             at::Tensor &sample_per_part,
-                             at::Tensor &trans_std)
+                             const at::Tensor &no_trans,
+                             const at::Tensor &spatial_scale,
+                             const at::Tensor &output_dim,
+                             const at::Tensor &group_size,
+                             const at::Tensor &pooled_size,
+                             const at::Tensor &part_size,
+                             const at::Tensor &sample_per_part,
+                             const at::Tensor &trans_std)
 {
     int _no_trans = int(no_trans.data<float>()[0]);
     float _spatial_scale = spatial_scale.data<float>()[0];
@@ -172,14 +172,14 @@ dcn_v2_psroi_pooling_backward(const at::Tensor &out_grad,
                               const at::Tensor &bbox,
                               const at::Tensor &trans,
                               const at::Tensor &top_count,
-                              at::Tensor &no_trans,
-                              at::Tensor &spatial_scale,
-                              at::Tensor &output_dim,
-                              at::Tensor &group_size,
-                              at::Tensor &pooled_size,
-                              at::Tensor &part_size,
-                              at::Tensor &sample_per_part,
-                              at::Tensor &trans_std)
+                              const at::Tensor &no_trans,
+                              const at::Tensor &spatial_scale,
+                              const at::Tensor &output_dim,
+                              const at::Tensor &group_size,
+                              const at::Tensor &pooled_size,
+                              const at::Tensor &part_size,
+                              const at::Tensor &sample_per_part,
+                              const at::Tensor &trans_std)
 {
     int _no_trans = int(no_trans.data<float>()[0]);
     float _spatial_scale = spatial_scale.data<float>()[0];
