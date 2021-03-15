@@ -6,7 +6,7 @@ Since DCN is used in many models and performance well but in industry this op su
 
 ![image-20210217183103121](https://gitee.com/jinfagang/picbed/raw/master/img/image-20210217183103121.png)
 
-Pytorch 1.7 inferenced in CenterNet-DLA model. It works on Pytorch 1.7 so that you can use it in your RTX 3070 series cards.
+Pytorch 1.7 inferenced in CenterNet-DLA model. It works on Pytorch 1.7 so that you can use it in your RTX 30 series cards.
 
 
 
