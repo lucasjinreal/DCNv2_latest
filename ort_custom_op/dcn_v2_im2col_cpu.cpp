@@ -2,11 +2,12 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <math.h>
 
-#include <ATen/ATen.h>
+//#include <ATen/ATen.h>
 //#include <ATen/cuda/CUDAContext.h>
 
-#include <TH/TH.h>
+//#include <TH/TH.h>
 //#include <THC/THCAtomics.cuh>
 //#include <THC/THCDeviceUtils.cuh>
 

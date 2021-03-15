@@ -8,3 +8,5 @@ build
 DCNv2.egg-info
 dist
 *.swp
+ort_custom_op/build
+temp.pt

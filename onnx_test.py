@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _pair
-torch.ops.load_library('_ext.cpython-37m-x86_64-linux-gnu.so')
+torch.ops.load_library('build/lib.linux-x86_64-3.7/_ext.cpython-37m-x86_64-linux-gnu.so')
 
 def register_custom_op():
     def my_dcn_forward(g, input, weight, bias, offset, mask, kernel_h, kernel_w, stride_h, stride_w, padding_h, padding_w, dilation_h, dilation_w, deformable_groups):
@@ -67,10 +67,14 @@ class DCNv2_ONNX(nn.Module):
             torch.Tensor([self.deformable_groups]),
         )
 
+batch = 1
+input_c = 1
+out_c = 1
+
 def export_custom_op():
     deformable_groups = 1
-    N, inC, inH, inW = 2, 2, 4, 4
-    outC = 2
+    N, inC, inH, inW = batch, input_c, 4, 4
+    outC = out_c
     kH, kW = 3, 3
 
     model = DCNv2_ONNX(inC, outC, (kH, kW), padding = 1)
@@ -84,8 +88,31 @@ def export_custom_op():
     torch.onnx.export(model, inputs, f,
                       opset_version=9,
                       example_outputs=None,
+                      input_names=["input", "offset", "mask"], output_names=["output"],
                       custom_opsets={"mydomain": 1})
+    torch.save(model.state_dict(), 'temp.pt')
+
+def test_custom_op():
+    import numpy as np
+    deformable_groups = 1
+    N, inC, inH, inW = batch, input_c, 4, 4
+    outC = out_c
+    kH, kW = 3, 3
+
+    model = DCNv2_ONNX(inC, outC, (kH, kW), padding = 1)
+    model.load_state_dict(torch.load('temp.pt'))
+    # input = torch.ones(N, inC, inH, inW).float()
+    input = np.arange(16).reshape(N, inC, inH, inW).astype(np.float32)
+    input = torch.tensor(input)
+    # offset = torch.ones(N, deformable_groups * 2 * kW * kH, inH, inW).float()
+    offset = np.arange(288).reshape(N, deformable_groups * 2 * kW * kH, inH, inW).astype(np.float32) / 50.
+    offset = torch.tensor(offset)
+    mask = torch.ones(N, deformable_groups * 1 * kW * kH, inH, inW).float()
+
+    out = model(input, offset, mask)
+    print(out)
 
 register_custom_op()
 export_custom_op()
+test_custom_op()
 print('export onnx')
