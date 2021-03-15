@@ -8,7 +8,36 @@ Since DCN is used in many models and performance well but in industry this op su
 
 Pytorch 1.7 inferenced in CenterNet-DLA model. It works on Pytorch 1.7 so that you can use it in your RTX 3070 series cards.
 
-
+# install
+## pytorch
+```bash
+./make.sh
+python testcpu.py
+python testgpu.py
+```
+## onnxruntime
+export onnx module
+```bash
+python onnx_test.py
+```
+### install onnxruntime c++ lib
+* [install NuGet](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools)
+* install onnxruntime
+  ```bash
+  nuget install Microsoft.ML.OnnxRuntime -Version 1.7.0
+  ```
+### build deconv onnxruntime
+Download Eigen library, add path to CMakeLists.txt, then build.
+```bash
+cd ort_custom_op
+mkdir build
+cd build
+cmake ..
+make
+# test
+./customop
+```
+complare result to the output of `onnx_test.py`.
 
 ## Updates
 
