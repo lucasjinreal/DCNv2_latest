@@ -21,4 +21,4 @@ Pytorch 1.7 inferenced in CenterNet-DLA model. It works on Pytorch 1.7 so that y
 
 ## Contact
 
-If you have any question, welcome add my wechat: `jintianiloveu` for communication.
+If you have any question, please using this platform post questions: http://t.manaai.cn
