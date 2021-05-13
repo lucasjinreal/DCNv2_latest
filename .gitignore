@@ -6,4 +6,6 @@
 _ext
 build
 DCNv2.egg-info
-distvendor/
+dist
+vendor/
+
