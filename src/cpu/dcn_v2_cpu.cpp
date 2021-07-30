@@ -60,7 +60,7 @@ dcn_v2_cpu_forward(const at::Tensor &input,
     const int height_out = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
     const int width_out = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
 
-    auto ones = at::ones({height_out, width_out}, input.options());
+    auto ones = at::ones({bias.sizes()[0], height_out, width_out}, input.options());
     auto columns = at::empty({channels * kernel_h * kernel_w, 1 * height_out * width_out}, input.options());
     auto output = at::empty({batch, channels_out, height_out, width_out}, input.options());
 
