@@ -13,11 +13,8 @@
 #include <cstring>
 
 #include <ATen/ATen.h>
+#include <ATen/ceil_div.h>
 //#include <ATen/cuda/CUDAContext.h>
-
-#include <TH/TH.h>
-//#include <THC/THCAtomics.cuh>
-//#include <THC/THCDeviceUtils.cuh>
 
 /*#define CUDA_KERNEL_LOOP(i, n)                        \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
@@ -314,11 +311,11 @@ dcn_v2_psroi_pooling_cpu_forward(const at::Tensor &input,
 
   if (out.numel() == 0)
   {
-    //THCudaCheck(cudaGetLastError());
+    //C10_CUDA_CHECK(cudaGetLastError());
     return std::make_tuple(out, top_count);
   }
 
-  /*dim3 grid(std::min(THCCeilDiv(out_size, 512L), 4096L));
+  /*dim3 grid(std::min(at::ceil_div(out_size, 512L), 4096L));
   dim3 block(512);*/
 
   AT_DISPATCH_FLOATING_TYPES(input.type(), "dcn_v2_psroi_pooling_cpu_forward", [&] {
@@ -343,7 +340,7 @@ dcn_v2_psroi_pooling_cpu_forward(const at::Tensor &input,
         out.data<scalar_t>(),
         top_count.data<scalar_t>());
   });
-  //THCudaCheck(cudaGetLastError());
+  //C10_CUDA_CHECK(cudaGetLastError());
   return std::make_tuple(out, top_count);
 }
 
@@ -387,11 +384,11 @@ dcn_v2_psroi_pooling_cpu_backward(const at::Tensor &out_grad,
 
   if (input_grad.numel() == 0)
   {
-    //THCudaCheck(cudaGetLastError());
+    //C10_CUDA_CHECK(cudaGetLastError());
     return std::make_tuple(input_grad, trans_grad);
   }
 
-  /*dim3 grid(std::min(THCCeilDiv(out_size, 512L), 4096L));
+  /*dim3 grid(std::min(at::ceil_div(out_size, 512L), 4096L));
   dim3 block(512);
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();*/
 
@@ -421,6 +418,6 @@ dcn_v2_psroi_pooling_cpu_backward(const at::Tensor &out_grad,
         num_classes,
         channels_each_class);
   });
-  //THCudaCheck(cudaGetLastError());
+  //C10_CUDA_CHECK(cudaGetLastError());
   return std::make_tuple(input_grad, trans_grad);
 }
