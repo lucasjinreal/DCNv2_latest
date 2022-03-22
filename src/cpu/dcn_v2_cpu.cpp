@@ -4,10 +4,6 @@
 #include <ATen/ATen.h>
 //#include <ATen/cuda/CUDAContext.h>
 
-#include <TH/TH.h>
-//#include <THC/THCAtomics.cuh>
-//#include <THC/THCDeviceUtils.cuh>
-
 //extern THCState *state;
 
 // author: Charles Shang
@@ -142,8 +138,8 @@ std::vector<at::Tensor> dcn_v2_cpu_backward(const at::Tensor &input,
                                              int deformable_group)
 {
 
-    THArgCheck(input.is_contiguous(), 1, "input tensor has to be contiguous");
-    THArgCheck(weight.is_contiguous(), 2, "weight tensor has to be contiguous");
+    TORCH_CHECK_ARG(input.is_contiguous(), 1, "input tensor has to be contiguous");
+    TORCH_CHECK_ARG(weight.is_contiguous(), 2, "weight tensor has to be contiguous");
 
     /*AT_ASSERTM(input.type().is_cuda(), "input must be a CUDA tensor");
     AT_ASSERTM(weight.type().is_cuda(), "weight must be a CUDA tensor");
